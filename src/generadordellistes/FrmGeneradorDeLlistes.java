@@ -96,7 +96,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        jFileChooser1.OPEN_DIALOG;
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
