@@ -6,6 +6,13 @@
 
 package generadordellistes;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
@@ -14,6 +21,8 @@ import javax.swing.JOptionPane;
  * @author DmnT
  */
 public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
+    
+    //SortedList<Alumne> alumnes = new SortedList<Alumne>();
 
     /**
      * Creates new form FrmGeneradorDeLlistes
@@ -54,11 +63,6 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
 
         jLabel2.setText("Selecciona les matèries de es quals vols generar llistes:");
 
-        jList1.setModel(new javax.swing.AbstractListModel() {
-            String[] strings = { "Item 1", "Item 2", "Item 3", "Item 4", "Item 5" };
-            public int getSize() { return strings.length; }
-            public Object getElementAt(int i) { return strings[i]; }
-        });
         jScrollPane2.setViewportView(jList1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -102,6 +106,22 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         fc.showOpenDialog(this);
         //asigna el fitxer al textbox
         jTextField1.setText(fc.getSelectedFile().getPath());
+        this.llegirDades(jTextField1.getText());
+        /*try {
+            BufferedReader inputStream= new BufferedReader(new FileReader(jTextField1.getText()));
+            String l;
+            inputStream.readLine();
+            while((l=inputStream.readLine())!=null){
+                String[] tempor=l.split("\"");
+                System.out.print(tempor[3]+"-"+tempor[7]+"-"+tempor[11]+"\n");
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
+            
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -137,6 +157,24 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
                 new FrmGeneradorDeLlistes().setVisible(true);
             }
         });
+    }
+    
+    public void llegirDades(String direccio){
+        try {
+            BufferedReader inputStream= new BufferedReader(new FileReader(direccio));
+            String l;
+            //es llegeix una linia per a ometre la primera, en la que no hi ha cap alumne
+            inputStream.readLine();
+            //TODO això ha d'introduir dades, no imprimir
+            while((l=inputStream.readLine())!=null){
+                String[] tempor=l.split(",");
+                System.out.print(tempor[1].replaceAll("\"", "")+"-"+tempor[2]+"-"+tempor[3]+"\n");
+            }
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
