@@ -10,11 +10,16 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 /**
  *
@@ -22,7 +27,9 @@ import javax.swing.JOptionPane;
  */
 public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
     
-    //SortedList<Alumne> alumnes = new SortedList<Alumne>();
+    ArrayList<Alumne> alumnes = new ArrayList<Alumne>();
+    ArrayList<String> materies = new ArrayList<String>();
+    
 
     /**
      * Creates new form FrmGeneradorDeLlistes
@@ -106,7 +113,10 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         fc.showOpenDialog(this);
         //asigna el fitxer al textbox
         jTextField1.setText(fc.getSelectedFile().getPath());
-        this.llegirDades(jTextField1.getText());
+        this.llegirDades(jTextField1.getText(),alumnes,materies);
+        //ordenar les llistes:
+        Collections.sort(alumnes);
+        Collections.sort(materies);
         /*try {
             BufferedReader inputStream= new BufferedReader(new FileReader(jTextField1.getText()));
             String l;
@@ -159,16 +169,30 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         });
     }
     
-    public void llegirDades(String direccio){
+    public void llegirDades(String direccio, ArrayList<Alumne> alumnes, ArrayList<String> materies){
         try {
             BufferedReader inputStream= new BufferedReader(new FileReader(direccio));
             String l;
-            //es llegeix una linia per a ometre la primera, en la que no hi ha cap alumne
+            //es llegeix una linia primer per a ometre la primera, en la que no hi ha cap alumne
             inputStream.readLine();
             //TODO això ha d'introduir dades, no imprimir
             while((l=inputStream.readLine())!=null){
-                String[] tempor=l.split(",");
-                System.out.print(tempor[1].replaceAll("\"", "")+"-"+tempor[2]+"-"+tempor[3]+"\n");
+                String[] temporStrings=l.replaceAll("\"", "").split(",");
+                //System.out.println(temporStrings[1]+"-"+temporStrings[2].trim());
+                Alumne temporAlumne=new Alumne();
+                temporAlumne.setCognoms(temporStrings[1]);
+                temporAlumne.setNom(temporStrings[2].trim());
+                temporAlumne.setGrup(temporStrings[3]);
+                ArrayList<String> temporMaterAlumn = new ArrayList<String>();
+                for(int i=4;i<temporStrings.length;i++){
+                    temporMaterAlumn.add(temporStrings[i]);
+                    if(!materies.contains(temporStrings[i])){
+                        materies.add(temporStrings[i]);
+                    }
+                }
+                temporAlumne.setMateries(temporMaterAlumn);
+                alumnes.add(temporAlumne);
+                
             }
         } catch (FileNotFoundException ex) {
             Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
