@@ -7,19 +7,29 @@
 package generadordellistes;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.SortedSet;
-import java.util.TreeMap;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 
 /**
  *
@@ -29,6 +39,10 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
     
     ArrayList<Alumne> alumnes = new ArrayList<Alumne>();
     ArrayList<String> materies = new ArrayList<String>();
+    
+    
+    
+    
     
 
     /**
@@ -54,6 +68,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         jList1 = new javax.swing.JList();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -72,6 +87,14 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
 
         jScrollPane2.setViewportView(jList1);
 
+        jButton2.setText("Generar Llistes");
+        jButton2.setName("GenerarLlistes"); // NOI18N
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -84,8 +107,12 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jButton1))
-                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jButton2))
+                        .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(165, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -99,8 +126,13 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
                     .addComponent(jButton1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
-                .addGap(18, 18, 18)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(101, 101, 101)
+                        .addComponent(jButton2)))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
 
@@ -116,7 +148,10 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         this.llegirDades(jTextField1.getText(),alumnes,materies);
         //ordenar les llistes:
         Collections.sort(alumnes);
-        Collections.sort(materies);
+        Collections.sort(materies);  
+        Vector<String> materies2 = new Vector<String>(materies);
+        jList1.setListData(materies2);
+        
         /*try {
             BufferedReader inputStream= new BufferedReader(new FileReader(jTextField1.getText()));
             String l;
@@ -133,6 +168,45 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
             
         
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        try {
+            //System.out.print(jList1.getSelectedValuesList().toString());
+            List<String> materiesSeleccionades = jList1.getSelectedValuesList();
+            DocumentBuilder docBuilder =DocumentBuilderFactory.newInstance().newDocumentBuilder();
+            Document doc = docBuilder.newDocument();
+            Element rootElement = doc.createElement("llistes");  
+            doc.appendChild(rootElement);
+            
+            for(String str : materiesSeleccionades){
+                Element materia = doc.createElement("llista");
+                materia.setAttribute("materia", str);
+                for(int i=0;i<alumnes.size();i++){
+                    if(alumnes.get(i).getMateries().contains(str)){
+                        Element unAlumne = doc.createElement("alumne");
+                        Element nomCognom = doc.createElement("cognomsNom");
+                        nomCognom.appendChild(doc.createTextNode(alumnes.get(i).getCognoms()+", "+alumnes.get(i).getNom()));
+                        unAlumne.appendChild(nomCognom);
+                        Element elGrup = doc.createElement("grup");
+                        elGrup.appendChild(doc.createTextNode(alumnes.get(i).getGrup()));
+                        unAlumne.appendChild(elGrup);
+                        materia.appendChild(unAlumne);
+                    }                    
+                }  
+                rootElement.appendChild(materia);
+            }
+            Transformer transformer =TransformerFactory.newInstance().newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(new File("llistaAlumesPerMateria.xml"));
+                transformer.transform(source, result);
+        } catch (ParserConfigurationException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerConfigurationException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (TransformerException ex) {
+            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -203,6 +277,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
