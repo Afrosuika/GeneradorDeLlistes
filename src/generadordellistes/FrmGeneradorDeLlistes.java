@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +19,7 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -38,18 +40,14 @@ import org.w3c.dom.Element;
 public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
     
     ArrayList<Alumne> alumnes = new ArrayList<Alumne>();
-    ArrayList<String> materies = new ArrayList<String>();
-    
-    
-    
-    
-    
+    ArrayList<String> materies = new ArrayList<String>();   
 
     /**
      * Creates new form FrmGeneradorDeLlistes
      */
     public FrmGeneradorDeLlistes() {
         initComponents();
+        jButton2.setEnabled(false);
     }
 
     /**
@@ -62,6 +60,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
     private void initComponents() {
 
         jFileChooser1 = new javax.swing.JFileChooser();
+        jDialog1 = new javax.swing.JDialog();
         jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
@@ -70,7 +69,19 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         jList1 = new javax.swing.JList();
         jButton2 = new javax.swing.JButton();
 
+        javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
+        jDialog1.getContentPane().setLayout(jDialog1Layout);
+        jDialog1Layout.setHorizontalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 400, Short.MAX_VALUE)
+        );
+        jDialog1Layout.setVerticalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 300, Short.MAX_VALUE)
+        );
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Generador De Llistats");
 
         jLabel1.setText("Indica el fitxer que conté les dades a tractar:");
 
@@ -102,18 +113,17 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(74, 74, 74)
+                        .addComponent(jButton2))
+                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, 218, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
-                        .addComponent(jButton1))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                        .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2))
-                        .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.PREFERRED_SIZE, 286, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(165, Short.MAX_VALUE))
+                        .addComponent(jButton1)))
+                .addContainerGap(127, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,7 +141,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 176, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(101, 101, 101)
+                        .addGap(95, 95, 95)
                         .addComponent(jButton2)))
                 .addContainerGap(30, Short.MAX_VALUE))
         );
@@ -144,33 +154,29 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         //Obra la finestra Per buscar el fitxer
         fc.showOpenDialog(this);
         //asigna el fitxer al textbox
-        jTextField1.setText(fc.getSelectedFile().getPath());
-        this.llegirDades(jTextField1.getText(),alumnes,materies);
-        //ordenar les llistes:
-        Collections.sort(alumnes);
-        Collections.sort(materies);  
-        Vector<String> materies2 = new Vector<String>(materies);
-        jList1.setListData(materies2);
+        if(fc.getSelectedFile().getPath().endsWith(".csv")){
+            BufferedReader comprovador = null;
+            jTextField1.setText(fc.getSelectedFile().getPath());
+            this.llegirDades(jTextField1.getText(),alumnes,materies);
+            Collections.sort(alumnes);
+            Collections.sort(materies);
+            Vector<String> materies2 = new Vector<String>(materies);
+            jList1.setListData(materies2);
+            jButton2.setEnabled(true);
+        }else{
+            JOptionPane.showMessageDialog(rootPane, "El fitxer no és vàlid, ha de ser un fitxer .csv");
+        }    
         
-        /*try {
-            BufferedReader inputStream= new BufferedReader(new FileReader(jTextField1.getText()));
-            String l;
-            inputStream.readLine();
-            while((l=inputStream.readLine())!=null){
-                String[] tempor=l.split("\"");
-                System.out.print(tempor[3]+"-"+tempor[7]+"-"+tempor[11]+"\n");
-            }
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
-        }*/
-            
         
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        try {
+        
+            if(jList1.isSelectionEmpty()){
+                JOptionPane.showMessageDialog(rootPane, "S'ha de triar almenys una matéria.");
+            }else 
+            try {
+                jButton2.setEnabled(false);
             //System.out.print(jList1.getSelectedValuesList().toString());
             List<String> materiesSeleccionades = jList1.getSelectedValuesList();
             DocumentBuilder docBuilder =DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -199,6 +205,11 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
                 DOMSource source = new DOMSource(doc);
                 StreamResult result = new StreamResult(new File("llistaAlumesPerMateria.xml"));
                 transformer.transform(source, result);
+                
+                //Notificar de l'éxit de l'operació i tancar.
+                JOptionPane.showMessageDialog(rootPane, "XML generat");
+                System.exit(0);
+                
         } catch (ParserConfigurationException ex) {
             Logger.getLogger(FrmGeneradorDeLlistes.class.getName()).log(Level.SEVERE, null, ex);
         } catch (TransformerConfigurationException ex) {
@@ -238,7 +249,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new FrmGeneradorDeLlistes().setVisible(true);
+                new FrmGeneradorDeLlistes().setVisible(true);                
             }
         });
     }
@@ -249,7 +260,6 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
             String l;
             //es llegeix una linia primer per a ometre la primera, en la que no hi ha cap alumne
             inputStream.readLine();
-            //TODO això ha d'introduir dades, no imprimir
             while((l=inputStream.readLine())!=null){
                 String[] temporStrings=l.replaceAll("\"", "").split(",");
                 //System.out.println(temporStrings[1]+"-"+temporStrings[2].trim());
@@ -278,6 +288,7 @@ public class FrmGeneradorDeLlistes extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
+    private javax.swing.JDialog jDialog1;
     private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
